@@ -1,0 +1,13 @@
+{
+  "name": "analytics-cron",
+  "version": "1.0.0",
+  "private": true,
+  "main": "cron.js",
+  "scripts": {
+    "dev": "node cron.js",
+    "start": "node cron.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  }
+}

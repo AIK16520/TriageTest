@@ -1,0 +1,27 @@
+{
+  "name": "mini-microservice-analytics",
+  "version": "1.0.0",
+  "description": "Mini-Microservice Analytics Test App - API on Vercel, Worker + Cron on Railway, MongoDB storage",
+  "private": true,
+  "scripts": {
+    "dev:api": "cd services/api && npm run dev",
+    "dev:worker": "cd services/worker && npm run dev",
+    "dev:cron": "cd services/cron && npm run dev",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:worker\" \"npm run dev:cron\"",
+    "install:all": "npm install && cd services/api && npm install && cd ../worker && npm install && cd ../cron && npm install",
+    "seed": "node scripts/generate-seed-data.js",
+    "deploy:api": "cd services/api && bash vercel-deploy.sh",
+    "deploy:worker": "cd services/worker && bash railway-restart.sh",
+    "deploy:promote": "bash deploy/promote-vercel.sh",
+    "deploy:check": "bash deploy/check_health_and_rollback.sh"
+  },
+  "keywords": ["microservices", "analytics", "vercel", "railway", "mongodb"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

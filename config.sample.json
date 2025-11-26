@@ -1,0 +1,16 @@
+{
+  
+  "MONGODB_URI": "mongodb+srv://triage076_db_user:Vq0aSnZ8tbhK5qWd@tritest.bqlpegl.mongodb.net/?appName=TriTest",
+  "VERCEL_TOKEN": "<YOUR_VERCEL_TOKEN>",
+  "VERCEL_PROJECT_ID": "<YOUR_VERCEL_PROJECT_ID>",
+  "VERCEL_TEAM_ID": "<YOUR_VERCEL_TEAM_ID_OPTIONAL>",
+  "VERCEL_PROD_ALIAS": "your-app.vercel.app",
+  "RAILWAY_TOKEN": "<YOUR_RAILWAY_TOKEN>",
+  "RAILWAY_PROJECT_ID": "<YOUR_RAILWAY_PROJECT_ID>",
+  "RAILWAY_SERVICE_ID_WORKER": "<SERVICE_ID_FOR_WORKER>",
+  "RAILWAY_SERVICE_ID_CRON": "<SERVICE_ID_FOR_CRON>",
+  "API_FAILURE_MODE": "none",
+  "WORKER_FAILURE_MODE": "none",
+  "CRON_FAILURE_MODE": "none",
+  "LOG_LEVEL": "info"
+}

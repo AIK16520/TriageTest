@@ -1,0 +1,28 @@
+{"timestamp":"2025-01-15T10:23:45.123Z","level":"INFO","service":"api","message":"API_REQUEST_START","method":"POST","path":"/api/events","requestId":"a3f7b2"}
+[2025-01-15T10:23:45.123Z] INFO [api] API_REQUEST_START | method="POST", path="/api/events", requestId="a3f7b2"
+{"timestamp":"2025-01-15T10:23:45.234Z","level":"INFO","service":"api","message":"EVENT_INSERTED","eventId":"507f1f77bcf86cd799439011","userId":"user_001","action":"page_view","requestId":"a3f7b2"}
+[2025-01-15T10:23:45.234Z] INFO [api] EVENT_INSERTED | eventId="507f1f77bcf86cd799439011", userId="user_001", action="page_view", requestId="a3f7b2"
+{"timestamp":"2025-01-15T10:23:50.456Z","level":"INFO","service":"worker","message":"WORKER_JOB_START","jobId":"x9k2m5","batchSize":50}
+[2025-01-15T10:23:50.456Z] INFO [worker] WORKER_JOB_START | jobId="x9k2m5", batchSize=50
+{"timestamp":"2025-01-15T10:23:51.123Z","level":"INFO","service":"worker","message":"WORKER_PROCESSING","jobId":"x9k2m5","count":15}
+[2025-01-15T10:23:51.123Z] INFO [worker] WORKER_PROCESSING | jobId="x9k2m5", count=15
+{"timestamp":"2025-01-15T10:23:51.789Z","level":"WARN","service":"worker","message":"WORKER_PARSE_ERROR","eventId":"507f1f77bcf86cd799439012","error":"Missing userId or action","jobId":"x9k2m5"}
+[2025-01-15T10:23:51.789Z] WARN [worker] WORKER_PARSE_ERROR | eventId="507f1f77bcf86cd799439012", error="Missing userId or action", jobId="x9k2m5"
+{"timestamp":"2025-01-15T10:23:52.345Z","level":"INFO","service":"worker","message":"WORKER_JOB_DONE","jobId":"x9k2m5","count":14,"errors":1,"metrics":{"totalEvents":14,"actionTypes":5,"uniqueUsers":3}}
+[2025-01-15T10:23:52.345Z] INFO [worker] WORKER_JOB_DONE | jobId="x9k2m5", count=14, errors=1, metrics={"totalEvents":14,"actionTypes":5,"uniqueUsers":3}
+{"timestamp":"2025-01-15T10:24:00.678Z","level":"INFO","service":"cron","message":"CRON_JOB_START","timestamp":"2025-01-15T10:24:00.678Z"}
+[2025-01-15T10:24:00.678Z] INFO [cron] CRON_JOB_START | timestamp="2025-01-15T10:24:00.678Z"
+{"timestamp":"2025-01-15T10:24:01.234Z","level":"INFO","service":"cron","message":"CRON_CLEANUP_START","jobId":"c7h3n1","retentionDays":30}
+[2025-01-15T10:24:01.234Z] INFO [cron] CRON_CLEANUP_START | jobId="c7h3n1", retentionDays=30
+{"timestamp":"2025-01-15T10:24:01.567Z","level":"INFO","service":"cron","message":"CRON_CLEANUP_DONE","jobId":"c7h3n1","deletedProcessedEvents":42,"cutoffDate":"2024-12-16T10:24:01.234Z"}
+[2025-01-15T10:24:01.567Z] INFO [cron] CRON_CLEANUP_DONE | jobId="c7h3n1", deletedProcessedEvents=42, cutoffDate="2024-12-16T10:24:01.234Z"
+{"timestamp":"2025-01-15T10:24:01.890Z","level":"INFO","service":"cron","message":"CRON_HEARTBEAT","jobId":"c7h3n1","timestamp":"2025-01-15T10:24:01.890Z"}
+[2025-01-15T10:24:01.890Z] INFO [cron] CRON_HEARTBEAT | jobId="c7h3n1", timestamp="2025-01-15T10:24:01.890Z"
+{"timestamp":"2025-01-15T10:24:15.123Z","level":"ERROR","service":"api","message":"API_FAILURE_INJECTED","failureMode":"random_500","statusCode":500,"requestId":"b8j4k2"}
+[2025-01-15T10:24:15.123Z] ERROR [api] API_FAILURE_INJECTED | failureMode="random_500", statusCode=500, requestId="b8j4k2"
+{"timestamp":"2025-01-15T10:24:30.456Z","level":"ERROR","service":"worker","message":"DB_CONNECTION_FAILED","error":"connection timed out","stack":"Error: connection timed out\n    at MongoClient.connect..."}
+[2025-01-15T10:24:30.456Z] ERROR [worker] DB_CONNECTION_FAILED | error="connection timed out", stack="Error: connection timed out\n    at MongoClient.connect..."
+{"timestamp":"2025-01-15T10:24:45.789Z","level":"INFO","service":"api","message":"HEALTH_CHECK_START","requestId":"h5m8p1"}
+[2025-01-15T10:24:45.789Z] INFO [api] HEALTH_CHECK_START | requestId="h5m8p1"
+{"timestamp":"2025-01-15T10:24:45.890Z","level":"INFO","service":"api","message":"HEALTH_CHECK_OK","status":"healthy","database":"connected","requestId":"h5m8p1"}
+[2025-01-15T10:24:45.890Z] INFO [api] HEALTH_CHECK_OK | status="healthy", database="connected", requestId="h5m8p1"

@@ -1,0 +1,13 @@
+{
+  "name": "analytics-worker",
+  "version": "1.0.0",
+  "private": true,
+  "main": "worker.js",
+  "scripts": {
+    "dev": "node worker.js",
+    "start": "node worker.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  }
+}
