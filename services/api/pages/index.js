@@ -194,9 +194,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <p style={styles.agentNote}>
-            Your AI agent should monitor Vercel/Railway logs, detect these patterns, and take appropriate action using official platform APIs.
-          </p>
+         
         </div>
       </div>
 
