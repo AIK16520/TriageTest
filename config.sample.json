@@ -1,6 +1,6 @@
 {
-  
-  "MONGODB_URI": "mongodb+srv://triage076_db_user:Vq0aSnZ8tbhK5qWd@tritest.bqlpegl.mongodb.net/?appName=TriTest",
+  "_comment": "Copy this file to config.json and fill in your actual values. DO NOT commit config.json to Git!",
+  "MONGODB_URI": "mongodb+srv://<user>:<password>@cluster.example.mongodb.net/analytics_test?retryWrites=true&w=majority",
   "VERCEL_TOKEN": "<YOUR_VERCEL_TOKEN>",
   "VERCEL_PROJECT_ID": "<YOUR_VERCEL_PROJECT_ID>",
   "VERCEL_TEAM_ID": "<YOUR_VERCEL_TEAM_ID_OPTIONAL>",
@@ -13,4 +13,5 @@
   "WORKER_FAILURE_MODE": "none",
   "CRON_FAILURE_MODE": "none",
   "LOG_LEVEL": "info"
+  
 }
