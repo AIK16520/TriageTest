@@ -12,9 +12,9 @@ export default async function handler(req, res) {
     const validIncidents = [
       'stuck_worker',
       'high_error_rate',
+      'bad_deployment',
       'db_connection_loss',
-      'memory_leak',
-      'dead_letter_queue'
+      'persistent_errors'
     ];
 
     if (!incident || !validIncidents.includes(incident)) {
@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     // Simulate different incidents
     switch (incident) {
       case 'stuck_worker':
+        // FIXABLE: Restart worker will fix this
         // Create many unprocessed events
         const events = Array(100).fill(null).map((_, i) => ({
           userId: `user_${i % 5}`,
@@ -44,58 +45,72 @@ export default async function handler(req, res) {
         break;
 
       case 'high_error_rate':
+        // FIXABLE: Restart worker will clear error state
         // Generate error logs
         for (let i = 0; i < 20; i++) {
-          await db.collection('system_logs').insertOne({
-            timestamp: new Date(),
-            level: 'ERROR',
-            service: 'worker',
-            message: 'WORKER_PARSE_ERROR',
-            metadata: { error: 'Simulated parse error' }
+          logger.error('worker', 'WORKER_PARSE_ERROR', {
+            error: 'Simulated parse error',
+            eventId: `fake_${i}`
           });
         }
         logger.error('api', 'HIGH_ERROR_RATE_SIMULATED', { errorCount: 20 });
         break;
 
+      case 'bad_deployment':
+        // FIXABLE: Rollback deployment will fix this
+        // Trigger API errors (this creates errors in Vercel logs)
+        logger.error('api', 'BAD_DEPLOYMENT_SIMULATED');
+
+        // Create multiple API errors
+        for (let i = 0; i < 15; i++) {
+          logger.error('api', 'API_FAILURE_INJECTED', {
+            statusCode: 500,
+            error: 'Simulated deployment error'
+          });
+        }
+        break;
+
       case 'db_connection_loss':
-        // Log DB connection errors
-        await db.collection('system_logs').insertOne({
-          timestamp: new Date(),
-          level: 'ERROR',
-          service: 'worker',
-          message: 'DB_CONNECTION_FAILED',
-          metadata: { error: 'Connection timeout' }
+        // NOT FIXABLE: Restart won't help if DB is actually down
+        // This requires manual intervention or DB restart
+        logger.error('worker', 'DB_CONNECTION_FAILED', {
+          error: 'Connection timeout',
+          retries: 3
         });
         logger.error('api', 'DB_CONNECTION_LOSS_SIMULATED');
+
+        // Log multiple connection failures
+        for (let i = 0; i < 5; i++) {
+          logger.error('worker', 'DB_CONNECTION_FAILED', {
+            error: 'Cannot reach database',
+            attempt: i + 1
+          });
+        }
         break;
 
-      case 'memory_leak':
-        // Create excessive metrics
-        await db.collection('metrics').updateOne(
-          {},
-          {
-            $set: {
-              totalEvents: 999999,
-              lastUpdated: new Date(Date.now() - 600000) // 10 minutes ago
-            }
-          },
-          { upsert: true }
-        );
-        logger.error('api', 'MEMORY_LEAK_SIMULATED');
-        break;
-
-      case 'dead_letter_queue':
-        // Create old stuck events
-        const oldEvents = Array(50).fill(null).map((_, i) => ({
+      case 'persistent_errors':
+        // NOT FIXABLE: Even after restart, errors continue
+        // This indicates code-level bug that needs developer fix
+        const persistentEvents = Array(30).fill(null).map((_, i) => ({
           userId: `user_${i % 3}`,
-          action: 'stuck_action',
-          timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-          createdAt: new Date(Date.now() - 3600000),
+          action: 'broken_action',
+          timestamp: new Date().toISOString(),
+          createdAt: new Date(Date.now() - 600000), // 10 minutes ago
           processed: false,
-          retryCount: 5
+          retryCount: 5,
+          lastError: 'Schema validation failed'
         }));
-        await db.collection('events_raw').insertMany(oldEvents);
-        logger.error('api', 'DEAD_LETTER_QUEUE_SIMULATED', { eventCount: 50 });
+        await db.collection('events_raw').insertMany(persistentEvents);
+
+        // Generate persistent errors
+        for (let i = 0; i < 10; i++) {
+          logger.error('worker', 'WORKER_PERSISTENT_ERROR', {
+            error: 'Schema validation failed',
+            retries: 5,
+            eventId: `broken_${i}`
+          });
+        }
+        logger.error('api', 'PERSISTENT_ERRORS_SIMULATED', { errorCount: 10 });
         break;
     }
 
@@ -104,7 +119,7 @@ export default async function handler(req, res) {
       message: `Incident "${incident}" triggered`,
       incident,
       timestamp: new Date().toISOString(),
-      instructions: 'Check /api/health and /api/logs to diagnose'
+      instructions: 'Check Vercel/Railway logs to see the errors'
     });
 
   } catch (error) {

@@ -51,7 +51,7 @@ export default function Dashboard() {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.title}>📊 Analytics Dashboard</h1>
+        <h1 style={styles.title}>Analytics Dashboard</h1>
         <div style={styles.healthBadge}>
           <span style={{
             ...styles.statusDot,
@@ -88,7 +88,7 @@ export default function Dashboard() {
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Database</h3>
           <div style={styles.metricValue}>
-            {health?.database === 'connected' ? '✓' : '✗'}
+            {health?.database === 'connected' ? 'Connected' : 'Disconnected'}
           </div>
           <div style={styles.cardFooter}>{health?.database || 'unknown'}</div>
         </div>
@@ -117,47 +117,85 @@ export default function Dashboard() {
 
       {/* Incident Simulation */}
       <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>🔥 Trigger Test Incidents</h2>
+        <h2 style={styles.sectionTitle}>Trigger Test Incidents</h2>
         <p style={styles.infoText}>
           Simulate failures to test your AI agent. Click a button below to trigger an incident.
           Your agent will detect it in Vercel/Railway logs and should remediate automatically.
         </p>
-        <div style={styles.buttonGrid}>
-          <button
-            style={styles.incidentButton}
-            onClick={() => triggerIncident('stuck_worker')}
-          >
-            Stuck Worker
-          </button>
-          <button
-            style={styles.incidentButton}
-            onClick={() => triggerIncident('high_error_rate')}
-          >
-            High Error Rate
-          </button>
-          <button
-            style={styles.incidentButton}
-            onClick={() => triggerIncident('db_connection_loss')}
-          >
-            DB Connection Loss
-          </button>
-          <button
-            style={styles.incidentButton}
-            onClick={() => triggerIncident('dead_letter_queue')}
-          >
-            Dead Letter Queue
-          </button>
+        <div style={styles.categorySection}>
+          <h3 style={styles.categoryTitle}>Fixable by Agent (Restart/Rollback)</h3>
+          <div style={styles.buttonGrid}>
+            <button
+              style={{...styles.incidentButton, backgroundColor: '#f59e0b'}}
+              onClick={() => triggerIncident('stuck_worker')}
+            >
+              Stuck Worker
+            </button>
+            <button
+              style={{...styles.incidentButton, backgroundColor: '#f59e0b'}}
+              onClick={() => triggerIncident('high_error_rate')}
+            >
+              High Error Rate
+            </button>
+            <button
+              style={{...styles.incidentButton, backgroundColor: '#f59e0b'}}
+              onClick={() => triggerIncident('bad_deployment')}
+            >
+              Bad Deployment
+            </button>
+          </div>
         </div>
+
+        <div style={styles.categorySection}>
+          <h3 style={styles.categoryTitle}>Requires Developer Intervention</h3>
+          <div style={styles.buttonGrid}>
+            <button
+              style={{...styles.incidentButton, backgroundColor: '#ef4444'}}
+              onClick={() => triggerIncident('db_connection_loss')}
+            >
+              DB Connection Loss
+            </button>
+            <button
+              style={{...styles.incidentButton, backgroundColor: '#ef4444'}}
+              onClick={() => triggerIncident('persistent_errors')}
+            >
+              Persistent Errors
+            </button>
+          </div>
+        </div>
+
         <div style={styles.incidentInfo}>
           <p><strong>What happens when you trigger an incident:</strong></p>
-          <ul style={styles.list}>
-            <li><strong>Stuck Worker:</strong> Creates 100 unprocessed events</li>
-            <li><strong>High Error Rate:</strong> Generates 20+ error logs</li>
-            <li><strong>DB Connection Loss:</strong> Logs database failures</li>
-            <li><strong>Dead Letter Queue:</strong> Creates old stuck events</li>
-          </ul>
+
+          <div style={styles.incidentList}>
+            <div style={styles.incidentItem}>
+              <strong>Stuck Worker (Fixable)</strong>
+              <p>Creates 100 unprocessed events. Agent should restart worker pod.</p>
+            </div>
+
+            <div style={styles.incidentItem}>
+              <strong>High Error Rate (Fixable)</strong>
+              <p>Generates 20+ error logs. Agent should restart worker pod.</p>
+            </div>
+
+            <div style={styles.incidentItem}>
+              <strong>Bad Deployment (Fixable)</strong>
+              <p>Creates API errors in Vercel. Agent should rollback to previous deployment.</p>
+            </div>
+
+            <div style={styles.incidentItem}>
+              <strong>DB Connection Loss (Escalate)</strong>
+              <p>Database is down. Restart won't fix this. Agent should ping developer.</p>
+            </div>
+
+            <div style={styles.incidentItem}>
+              <strong>Persistent Errors (Escalate)</strong>
+              <p>Code-level bug. Restart won't fix. Agent should ping developer after 3 failed restart attempts.</p>
+            </div>
+          </div>
+
           <p style={styles.agentNote}>
-            → Your AI agent should monitor Vercel/Railway logs, detect these patterns, and remediate using official platform APIs.
+            Your AI agent should monitor Vercel/Railway logs, detect these patterns, and take appropriate action using official platform APIs.
           </p>
         </div>
       </div>
@@ -287,15 +325,23 @@ const styles = {
     fontWeight: '600',
     color: '#6366f1'
   },
+  categorySection: {
+    marginBottom: '24px'
+  },
+  categoryTitle: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '12px'
+  },
   buttonGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: '12px',
-    marginBottom: '20px'
+    marginBottom: '12px'
   },
   incidentButton: {
     padding: '14px 20px',
-    backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -305,20 +351,24 @@ const styles = {
     transition: 'background-color 0.2s'
   },
   incidentInfo: {
-    marginTop: '20px',
-    padding: '16px',
+    marginTop: '24px',
+    padding: '20px',
     backgroundColor: '#fef3c7',
     borderLeft: '4px solid #f59e0b',
     borderRadius: '4px'
   },
-  list: {
-    margin: '8px 0',
-    paddingLeft: '20px',
-    fontSize: '14px',
-    lineHeight: '1.8'
+  incidentList: {
+    margin: '16px 0'
+  },
+  incidentItem: {
+    marginBottom: '16px',
+    paddingBottom: '16px',
+    borderBottom: '1px solid #fde68a'
   },
   agentNote: {
-    marginTop: '12px',
+    marginTop: '16px',
+    paddingTop: '16px',
+    borderTop: '1px solid #fde68a',
     fontSize: '14px',
     fontWeight: '600',
     color: '#92400e'
