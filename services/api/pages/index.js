@@ -1,48 +1,345 @@
-export default function Home() {
+import { useState, useEffect } from 'react';
+
+export default function Dashboard() {
+  const [metrics, setMetrics] = useState(null);
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 10000); // Refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [metricsRes, healthRes] = await Promise.all([
+        fetch('/api/metrics').then(r => r.json()),
+        fetch('/api/health').then(r => r.json())
+      ]);
+
+      setMetrics(metricsRes.metrics || {});
+      setHealth(healthRes);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setLoading(false);
+    }
+  };
+
+  const triggerIncident = async (incident) => {
+    if (!confirm(`Trigger "${incident}" incident?`)) return;
+
+    try {
+      const res = await fetch('/api/trigger-incident', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ incident })
+      });
+      const data = await res.json();
+      alert(data.message + '\n\nYour AI agent should now detect this in Vercel/Railway logs.');
+      fetchData();
+    } catch (error) {
+      alert('Failed to trigger incident: ' + error.message);
+    }
+  };
+
+  if (loading) {
+    return <div style={styles.loading}>Loading dashboard...</div>;
+  }
+
   return (
-    <div style={{
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '800px',
-      margin: '50px auto',
-      padding: '20px'
-    }}>
-      <h1>Mini-Microservice Analytics API</h1>
-      <p>Welcome to the Analytics API service.</p>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <h1 style={styles.title}>📊 Analytics Dashboard</h1>
+        <div style={styles.healthBadge}>
+          <span style={{
+            ...styles.statusDot,
+            backgroundColor: health?.status === 'healthy' ? '#10b981' : '#ef4444'
+          }} />
+          {health?.status || 'unknown'}
+        </div>
+      </header>
 
-      <h2>Available Endpoints</h2>
-      <ul>
-        <li>
-          <strong>POST /api/events</strong> - Submit analytics events
-          <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
-{`curl -X POST /api/events \\
-  -H "Content-Type: application/json" \\
-  -d '{"userId": "user_001", "action": "page_view"}'`}
-          </pre>
-        </li>
-        <li>
-          <strong>GET /api/metrics</strong> - View aggregated metrics
-          <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
-{`curl /api/metrics`}
-          </pre>
-        </li>
-        <li>
-          <strong>GET /api/health</strong> - Health check
-          <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
-{`curl /api/health`}
-          </pre>
-        </li>
-      </ul>
+      <div style={styles.grid}>
+        {/* Metrics Cards */}
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Total Events</h3>
+          <div style={styles.metricValue}>{metrics?.totalEvents || 0}</div>
+          <div style={styles.cardFooter}>All time</div>
+        </div>
 
-      <h2>Documentation</h2>
-      <p>
-        For full documentation, setup instructions, and deployment guides,
-        see the <a href="https://github.com/your-repo/README.md">README</a>.
-      </p>
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Action Types</h3>
+          <div style={styles.metricValue}>
+            {Object.keys(metrics?.eventsByAction || {}).length}
+          </div>
+          <div style={styles.cardFooter}>Unique actions</div>
+        </div>
 
-      <hr style={{ margin: '30px 0' }} />
-      <p style={{ color: '#666', fontSize: '14px' }}>
-        Mini-Microservice Analytics Test App v1.0.0
-      </p>
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Active Users</h3>
+          <div style={styles.metricValue}>
+            {Object.keys(metrics?.eventsByUser || {}).length}
+          </div>
+          <div style={styles.cardFooter}>Total users</div>
+        </div>
+
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Database</h3>
+          <div style={styles.metricValue}>
+            {health?.database === 'connected' ? '✓' : '✗'}
+          </div>
+          <div style={styles.cardFooter}>{health?.database || 'unknown'}</div>
+        </div>
+      </div>
+
+      {/* Events by Action */}
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>Events by Action</h2>
+        <div style={styles.table}>
+          {Object.entries(metrics?.eventsByAction || {}).length > 0 ? (
+            Object.entries(metrics.eventsByAction)
+              .sort((a, b) => b[1] - a[1])
+              .map(([action, count]) => (
+                <div key={action} style={styles.tableRow}>
+                  <span style={styles.actionName}>{action}</span>
+                  <span style={styles.actionCount}>{count}</span>
+                </div>
+              ))
+          ) : (
+            <div style={styles.emptyState}>
+              No events yet. Send some events to see analytics!
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Incident Simulation */}
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>🔥 Trigger Test Incidents</h2>
+        <p style={styles.infoText}>
+          Simulate failures to test your AI agent. Click a button below to trigger an incident.
+          Your agent will detect it in Vercel/Railway logs and should remediate automatically.
+        </p>
+        <div style={styles.buttonGrid}>
+          <button
+            style={styles.incidentButton}
+            onClick={() => triggerIncident('stuck_worker')}
+          >
+            Stuck Worker
+          </button>
+          <button
+            style={styles.incidentButton}
+            onClick={() => triggerIncident('high_error_rate')}
+          >
+            High Error Rate
+          </button>
+          <button
+            style={styles.incidentButton}
+            onClick={() => triggerIncident('db_connection_loss')}
+          >
+            DB Connection Loss
+          </button>
+          <button
+            style={styles.incidentButton}
+            onClick={() => triggerIncident('dead_letter_queue')}
+          >
+            Dead Letter Queue
+          </button>
+        </div>
+        <div style={styles.incidentInfo}>
+          <p><strong>What happens when you trigger an incident:</strong></p>
+          <ul style={styles.list}>
+            <li><strong>Stuck Worker:</strong> Creates 100 unprocessed events</li>
+            <li><strong>High Error Rate:</strong> Generates 20+ error logs</li>
+            <li><strong>DB Connection Loss:</strong> Logs database failures</li>
+            <li><strong>Dead Letter Queue:</strong> Creates old stuck events</li>
+          </ul>
+          <p style={styles.agentNote}>
+            → Your AI agent should monitor Vercel/Railway logs, detect these patterns, and remediate using official platform APIs.
+          </p>
+        </div>
+      </div>
+
+      <footer style={styles.footer}>
+        <p>Mini-Microservice Analytics Test App v1.0.0</p>
+        <p>Built for testing AI on-call agents</p>
+        <p style={styles.updated}>Last updated: {new Date().toLocaleString()}</p>
+      </footer>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#f9fafb',
+    minHeight: '100vh'
+  },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    fontSize: '18px',
+    color: '#6b7280'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px',
+    padding: '24px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+  },
+  title: {
+    margin: 0,
+    fontSize: '28px',
+    color: '#111827'
+  },
+  healthBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 16px',
+    backgroundColor: '#f3f4f6',
+    borderRadius: '20px',
+    fontSize: '14px',
+    fontWeight: '600',
+    textTransform: 'uppercase'
+  },
+  statusDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%'
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '20px',
+    marginBottom: '30px'
+  },
+  card: {
+    padding: '24px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+  },
+  cardTitle: {
+    margin: '0 0 12px 0',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase'
+  },
+  metricValue: {
+    fontSize: '36px',
+    fontWeight: '700',
+    color: '#111827',
+    margin: '8px 0'
+  },
+  cardFooter: {
+    fontSize: '12px',
+    color: '#9ca3af'
+  },
+  section: {
+    marginBottom: '30px',
+    padding: '24px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+  },
+  sectionTitle: {
+    margin: '0 0 20px 0',
+    fontSize: '20px',
+    fontWeight: '600',
+    color: '#111827'
+  },
+  infoText: {
+    margin: '0 0 20px 0',
+    fontSize: '14px',
+    color: '#6b7280',
+    lineHeight: '1.6'
+  },
+  table: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  tableRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '12px',
+    backgroundColor: '#f9fafb',
+    borderRadius: '6px'
+  },
+  actionName: {
+    fontWeight: '500',
+    color: '#374151'
+  },
+  actionCount: {
+    fontWeight: '600',
+    color: '#6366f1'
+  },
+  buttonGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '12px',
+    marginBottom: '20px'
+  },
+  incidentButton: {
+    padding: '14px 20px',
+    backgroundColor: '#ef4444',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  incidentInfo: {
+    marginTop: '20px',
+    padding: '16px',
+    backgroundColor: '#fef3c7',
+    borderLeft: '4px solid #f59e0b',
+    borderRadius: '4px'
+  },
+  list: {
+    margin: '8px 0',
+    paddingLeft: '20px',
+    fontSize: '14px',
+    lineHeight: '1.8'
+  },
+  agentNote: {
+    marginTop: '12px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#92400e'
+  },
+  emptyState: {
+    padding: '40px',
+    textAlign: 'center',
+    color: '#9ca3af',
+    fontSize: '14px'
+  },
+  footer: {
+    marginTop: '40px',
+    padding: '20px',
+    textAlign: 'center',
+    color: '#6b7280',
+    fontSize: '12px',
+    borderTop: '1px solid #e5e7eb'
+  },
+  updated: {
+    marginTop: '8px',
+    fontSize: '11px',
+    color: '#9ca3af'
+  }
+};

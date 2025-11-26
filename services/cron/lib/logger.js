@@ -10,7 +10,6 @@ const LOG_LEVELS = {
 };
 
 function getLogLevel() {
-  // Try to read from config.json first, then environment
   try {
     const config = require('../../../config.json');
     return config.LOG_LEVEL || 'info';
