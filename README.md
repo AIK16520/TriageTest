@@ -224,16 +224,6 @@ Edit `config.json`:
 
 ---
 
-## For AI Agent Developers
-
-**Your AI Agent (Separate Product):**
-1. Queries Vercel and Railway logs using official platform APIs
-2. Detects incidents based on log patterns (see section 5 above)
-3. Remediates by calling official Vercel/Railway APIs (restart/rollback)
-4. Verifies fixes by re-querying logs
-
-**See [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) for complete integration guide**
-
 ---
 
 ## Project Structure
