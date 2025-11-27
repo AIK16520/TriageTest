@@ -260,11 +260,6 @@ config.json                  # Your secrets (DO NOT COMMIT!)
 config.sample.json           # Template
 ```
 
-## Documentation
-
-- **[AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md)** - How to integrate your AI agent
-- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide
-
 ## Security
 
 - `config.json` is in `.gitignore` - NEVER commit it
