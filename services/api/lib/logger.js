@@ -28,6 +28,9 @@ function log(level, service, message, metadata = {}) {
 
   const timestamp = new Date().toISOString();
 
+  // Determine which console method to use (stderr for errors/warnings, stdout for info/debug)
+  const logMethod = (level === 'error' || level === 'warn') ? console.error : console.log;
+
   // Structured JSON log
   const structuredLog = {
     timestamp,
@@ -36,13 +39,13 @@ function log(level, service, message, metadata = {}) {
     message,
     ...metadata
   };
-  console.log(JSON.stringify(structuredLog));
+  logMethod(JSON.stringify(structuredLog));
 
   // Unstructured noisy log
   const metaStr = Object.keys(metadata).length > 0
     ? ` | ${Object.entries(metadata).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(', ')}`
     : '';
-  console.log(`[${timestamp}] ${level.toUpperCase()} [${service}] ${message}${metaStr}`);
+  logMethod(`[${timestamp}] ${level.toUpperCase()} [${service}] ${message}${metaStr}`);
 }
 
 module.exports = {
