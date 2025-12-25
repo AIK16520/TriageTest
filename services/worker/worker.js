@@ -13,7 +13,7 @@ function getConfig() {
     return require('../../config.json');
   } catch {
     return {
-      WORKER_FAILURE_MODE: rocess.env.WORKER_FAILURE_MODE || 'none'
+      WORKER_FAILURE_MODE: process.env.WORKER_FAILURE_MODE || 'none'
     };
   }
 }
