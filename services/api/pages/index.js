@@ -44,6 +44,22 @@ export default function Dashboard() {
     }
   };
 
+  const triggerErrorFlood = async () => {
+    if (!confirm('Generate 50 error logs in Vercel?\n\nThis will flood your logs and trigger monitoring alerts.')) return;
+
+    try {
+      const res = await fetch('/api/trigger-errors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: 50 })
+      });
+      const data = await res.json();
+      alert(data.message + '\n\nCheck your Vercel logs to see the error flood!');
+    } catch (error) {
+      alert('Failed to trigger errors: ' + error.message);
+    }
+  };
+
   if (loading) {
     return <div style={styles.loading}>Loading dashboard...</div>;
   }
@@ -122,6 +138,20 @@ export default function Dashboard() {
           Simulate failures to test your AI agent. Click a button below to trigger an incident.
           Your agent will detect it in Vercel/Railway logs and should remediate automatically.
         </p>
+        
+        {/* Error Flood Button */}
+        <div style={styles.errorFloodSection}>
+          <button
+            style={styles.errorFloodButton}
+            onClick={triggerErrorFlood}
+          >
+            🚨 Generate Error Flood
+          </button>
+          <p style={styles.errorFloodText}>
+            Generates a large volume of error logs to test your monitoring system's detection capabilities.
+          </p>
+        </div>
+
         <div style={styles.categorySection}>
           <h3 style={styles.categoryTitle}>Fixable by Agent (Restart/Rollback)</h3>
           <div style={styles.buttonGrid}>
@@ -389,5 +419,32 @@ const styles = {
     marginTop: '8px',
     fontSize: '11px',
     color: '#9ca3af'
+  },
+  errorFloodSection: {
+    marginBottom: '30px',
+    padding: '20px',
+    backgroundColor: '#fee2e2',
+    borderRadius: '8px',
+    border: '2px solid #ef4444'
+  },
+  errorFloodButton: {
+    padding: '16px 32px',
+    backgroundColor: '#dc2626',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    width: '100%',
+    transition: 'background-color 0.2s',
+    marginBottom: '12px'
+  },
+  errorFloodText: {
+    margin: 0,
+    fontSize: '13px',
+    color: '#7f1d1d',
+    fontWeight: '500',
+    textAlign: 'center'
   }
 };
