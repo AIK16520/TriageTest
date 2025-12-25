@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const requestId = Math.random().toString(36).substring(7);
   logger.info('api', 'HEALTH_CHECK_START', { requestId });
 
-  tr {
+  try {
     const { db } = await connectToDatabase();
 
     // Perform a simple ping to verify DB connectivity
